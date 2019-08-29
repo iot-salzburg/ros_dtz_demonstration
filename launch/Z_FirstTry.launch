@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="niks_experiments" name="FirstTry" type="Z_FirstTry"/>
+</launch>
