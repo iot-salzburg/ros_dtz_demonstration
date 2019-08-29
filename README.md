@@ -1,4 +1,4 @@
-# franka_panda
+# ros_dtz_demonstration
 
 Tested with libfranka 0.5.0 and franka_ros 0.7.0
 
