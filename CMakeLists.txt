@@ -42,8 +42,14 @@ set(THIS_PACKAGE_INCLUDE_DIRS
 catkin_package()
 
 
-add_executable(DTZ_LagerDemo src/DTZ_LagerDemo.cpp)
-target_link_libraries(DTZ_LagerDemo ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
+
+set(SOURCES src/robot_demonstration.cpp src/PandaRobot.h src/positions.h)
+add_executable(robot_demonstration  ${SOURCES})
+target_link_libraries(robot_demonstration ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
+
+set(SOURCES src/print_franka_joints.cpp)
+add_executable(print_franka_joints  ${SOURCES})
+target_link_libraries(print_franka_joints ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
 
 
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
@@ -59,7 +65,7 @@ install(DIRECTORY franka_ros/franka_gripper/include/franka_gripper/
 install(PROGRAMS scripts/opc_ua_ros_server.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
-install(TARGETS DTZ_LagerDemo DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(TARGETS robot_demonstration DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
 ###########

@@ -1,0 +1,11 @@
+In diesem Ordner befinden sich, wie es der Name bereits vermuten lässt, experimentelle Programme. Dies Bezeichnung der einzelnen Programme sind teils nicht korrekt (aus verschiedenen Gründen), weshalb hier eine kleine Auflistung ist:
+
+*Kick_Off_Event_Move_It.cpp: Ist jenes Programm, das für das Kick Off Event für das DTZ von Wichtigkeit ist: der virtuelle Panda lagert 9 fiktive Bauklötze in ein fiktives Lager ein und gibt diese dann fiktiv aus. Die Fiktionen könnten im weiteren Verlauf des Projektes inkludiert werden. Wobei nicht bekannt ist, wie Zeitintensiv dies wird.
+
+*pick_and_place.cpp: Sollte eig. das Programm werden, mit dem via MoveIt Objekte aufgehoben werden können. Dies funktioniert, wegen einer Anomalie im Source Code von MoveIt leider nicht. Selber habe ich leider nicht die Kompetenzen, um dieses Problem zu lösen.
+
+*Stretching.cpp: Ein Beispielprogramm, dass den Roboter in sehr ausgiebige Positionen fahren lässt. In diesem Aufbau (Tisch mit 3D-Drucker und Lager) NICHT ausführen! (zumindest so lange nicht, bis ein virtueller Käfig mit virtuellem Lager, 3D-Drucker, etc. (soll als virtuelles Abbild der einzelnen Komponenten dienen, die dem Panda bei der Berechnung der Trajectorien Restriktionen vorgibt und somit für die Umgebung optimiert wird).
+
+*Stretching_ohne_Rviz.cpp: Sollte das Sele wie Stretching.cpp sein, nur ohne Rviz. Funktioniert nur nicht richtig. Sollte auch einmal angesehen werden...
+
+*Z_FirstTry.cpp: Das erste Programm, das mit MoveIt geschrieben wurde. Rein sentimentaler Wert. Kann gelöscht werden, falls es stören sollte. Sonst kann es als Lernprogramm für Neueinsteiger dienen.
