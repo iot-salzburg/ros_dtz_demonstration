@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="dtz_demonstration" name="DTZ_LagerDemo" type="DTZ_LagerDemo"/>
+</launch>

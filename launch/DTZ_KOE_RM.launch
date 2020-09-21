@@ -1,0 +1,19 @@
+<launch>
+  <include ns="franka_control" file="$(find franka_control)/launch/franka_control.launch">
+    <arg name="robot_ip" value="192.168.13.1" />
+    <arg name="load_gripper" value="true" />
+  </include>
+
+  <include ns="franka_gripper" file="$(find franka_gripper)/launch/franka_gripper.launch">
+    <arg name="robot_ip" value="192.168.13.1" />
+  </include>
+
+  <include ns="panda_moveit_config" file="$(find panda_moveit_config)/launch/panda_moveit.launch">
+  </include>
+
+  <include ns="panda_moveit_config" file="$(find panda_moveit_config)/launch/moveit_rviz.launch">
+  </include>
+
+  <include ns="niks_experiments" file="$(find niks_experiments)/launch/Stretching.launch">
+  </include>
+</launch>

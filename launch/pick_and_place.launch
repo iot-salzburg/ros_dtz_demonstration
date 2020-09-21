@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="niks_experiments" name="Pick_and_Place" type="pick_and_place"/>
+</launch>
