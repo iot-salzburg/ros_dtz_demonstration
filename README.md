@@ -1,6 +1,8 @@
 # ros_dtz_demonstration
 [![Youtube Video](https://raw.githubusercontent.com/nerovalerius/collision_avoidance/master/images/full_desk.jpg)](https://www.youtube.com/watch?v=LQPS--bnvQY)
 
+Click on Image for Video!
+
 This package realizes a software prototype to let a franka panda cobot (collaborative robot) recognize its surroundings with two 3D cameras and avoid obstacles.
 The cobot is controlled via ROS and Ubuntu.The cobot's surroundings are sensed with two Intel D435 3D-Cameras, which are mounted above a human-robot-collaborative (HRC) workspace. Their point cloud streams are first semi-automatically aligned with the iterative closest point algorithm (ICP), such that the final 3D point cloud stream of the HRC workspace shows the whole workspace almost without any masked areas. Afterwards, the point clouds are converted into Octomaps and visualized inside Rviz together with the 3D model of the cobot.
 
