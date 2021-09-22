@@ -1,0 +1,11 @@
+<launch>
+
+  <!-- Allow user to specify database location -->
+  <include file="$(find panda_moveit_config)/launch/panda_control_moveit_rviz.launch">
+    <arg name="robot_ip" default="192.168.13.1" />
+  </include>
+
+  <node name="robot_demonstration" pkg="dtz_demonstration" type="robot_demonstration">
+  </node>
+
+</launch>
