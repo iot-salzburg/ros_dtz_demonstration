@@ -43,7 +43,7 @@ catkin_package()
 
 
 
-set(SOURCES src/robot_demonstration.cpp src/PandaRobot.h src/positions.h)
+set(SOURCES src/robot_demonstration.cpp src/PandaRobot.h src/PandaRobot.cpp src/PandaPositions.h src/PandaPositions.cpp)
 add_executable(robot_demonstration  ${SOURCES})
 target_link_libraries(robot_demonstration ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY})
 

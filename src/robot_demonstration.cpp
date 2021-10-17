@@ -47,7 +47,7 @@
 #include <arpa/inet.h>
 
 #include "PandaRobot.h"
-#include "positions.h"
+#include "PandaPositions.h"
 
 
 std::string global_moving{"false"};
@@ -144,72 +144,72 @@ int main(int argc, char** argv)
             try{
                 ////////////////// MOVEMENT OF ROBOT //////////////////
 
-
+                PandaPositions positions;
                 pandaRobot->moveGripper("home");
 
                 if (global_order_movement.compare("PO") == 0) {
 
                     // Move To Near Printer
-                    pandaRobot->moveRobot(getPosition("near printer"));
+                    pandaRobot->moveRobot(positions.getPosition("near printer"));
 
                     // Move To Printer and grasp object
-                    pandaRobot->moveRobot(getPosition("printer"), "open", "close");
+                    pandaRobot->moveRobot(positions.getPosition("printer"), "open", "close");
 
                     // Move To Near Conveyor Belt
-                    pandaRobot->moveRobot(getPosition("near conveyor belt"));
+                    pandaRobot->moveRobot(positions.getPosition("near conveyor belt"));
 
                     // Move To Conveyor Belt
-                    pandaRobot->moveRobot(getPosition("conveyor belt"), "-", "open");
+                    pandaRobot->moveRobot(positions.getPosition("conveyor belt"), "-", "open");
 
                     // Move To Initial Position
-                    pandaRobot->moveRobot(getPosition("initial position"));
+                    pandaRobot->moveRobot(positions.getPosition("initial position"));
 
                 } else if (global_order_movement.compare("PS") == 0) {
 
                     // Move To Near Printer
-                    pandaRobot->moveRobot(getPosition("near printer"));
+                    pandaRobot->moveRobot(positions.getPosition("near printer"));
 
                     // Move To Printer and grasp object
-                    pandaRobot->moveRobot(getPosition("printer"), "open", "close");
+                    pandaRobot->moveRobot(positions.getPosition("printer"), "open", "close");
 
                     // Move To Near Storage
-                    pandaRobot->moveRobot(getPosition("storage"));
+                    pandaRobot->moveRobot(positions.getPosition("storage"));
 
                     // Move To Storage Place
-                    pandaRobot->moveRobot(getPosition("storage place " + std::to_string(global_order_pos)), "-", "open");
+                    pandaRobot->moveRobot(positions.getPosition("storage place " + std::to_string(global_order_pos)), "-", "open");
 
                     // Move To Near Storage
-                    pandaRobot->moveRobot(getPosition("storage"));
+                    pandaRobot->moveRobot(positions.getPosition("storage"));
 
                     // Move To Initial Position
-                    pandaRobot->moveRobot(getPosition("initial position"));
+                    pandaRobot->moveRobot(positions.getPosition("initial position"));
 
                 } else if (global_order_movement.compare("SO") == 0) {
                     // Move To Near Storage
-                    pandaRobot->moveRobot(getPosition("storage"));
+                    pandaRobot->moveRobot(positions.getPosition("storage"));
 
                     // Move To Near Storage and Grasp Object before
-                    pandaRobot->moveRobot(getPosition("near storage place " + std::to_string(global_order_pos)));
+                    pandaRobot->moveRobot(positions.getPosition("near storage place " + std::to_string(global_order_pos)));
 
                     // Move To Storage Place
-                    pandaRobot->moveRobot(getPosition("storage place " + std::to_string(global_order_pos)), "open", "close");
+                    pandaRobot->moveRobot(positions.getPosition("storage place " + std::to_string(global_order_pos)), "open", "close");
 
                     // Move To Near Storage and Grasp Object before
-                    pandaRobot->moveRobot(getPosition("near storage place " + std::to_string(global_order_pos)));
+                    pandaRobot->moveRobot(positions.getPosition("near storage place " + std::to_string(global_order_pos)));
 
                     // Move To Near Conveyor Belt
-                    pandaRobot->moveRobot(getPosition("near conveyor belt"));
+                    pandaRobot->moveRobot(positions.getPosition("near conveyor belt"));
 
                     // Move To Conveyor Belt
-                    pandaRobot->moveRobot(getPosition("conveyor belt"), "-", "open");
+                    pandaRobot->moveRobot(positions.getPosition("conveyor belt"), "-", "open");
 
                     // Move To Initial Position
-                    pandaRobot->moveRobot(getPosition("initial position"));
+                    pandaRobot->moveRobot(positions.getPosition("initial position"));
 
                 } else if (global_order_movement.compare("SC") == 0) { // move from storage to cart
 
-                    pandaRobot->moveRobot(getPosition("near storage place " + std::to_string(global_order_pos)));
-/*                    std::vector<MoveCommand> moveCommands;
+                    pandaRobot->moveRobot(positions.getPosition("near storage place " + std::to_string(global_order_pos)));
+/*                  std::vector<MoveCommand> moveCommands;
                     std::string pos = std::to_string(global_order_pos);
                     moveCommands.push_back({"cups init",      "-", "-"});
                     moveCommands.push_back({"cups storage",          "-", "-"});
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
                         // in case we ran into an error before, recover it
                         errorRecoverPub.publish(empty);
                         try {
-                            pandaRobot->moveRobot(getPosition(moveCommand->position), moveCommand->gripperBefore, moveCommand->gripperAfter);
+                            pandaRobot->moveRobot(positions.getPosition(moveCommand->position), moveCommand->gripperBefore, moveCommand->gripperAfter);
                             prevMove = moveCommand;
                         } catch (const PandaRobot::MovementException& me) {
                             ROS_ERROR("Exception in move from '%s' to '%s'", prevMove->position.c_str(), moveCommand->position.c_str());
@@ -243,22 +243,22 @@ int main(int argc, char** argv)
                 } else if (global_order_movement.compare("DD") == 0) {
 
                     // Move To Box Position on the left side of the desk
-                    pandaRobot->moveRobot(getPosition("near desk left"));
+                    pandaRobot->moveRobot(positions.getPosition("near desk left"));
 
                     // Move to box and grip it
-                    //pandaRobot->moveRobot(getPosition("desk left"), "open", "close");
+                    //pandaRobot->moveRobot(positions.getPosition("desk left"), "open", "close");
 
                     // Move To Box Position on the left side of the desk
-                    //pandaRobot->moveRobot(getPosition("near desk left"));
+                    //pandaRobot->moveRobot(positions.getPosition("near desk left"));
 
                     // Move To Box Position on the right side of the desk
-                    pandaRobot->moveRobot(getPosition("near desk right"));
+                    pandaRobot->moveRobot(positions.getPosition("near desk right"));
 
                     // Move to box and grip it
-                    //pandaRobot->moveRobot(getPosition("desk right"), "-", "open");
+                    //pandaRobot->moveRobot(positions.getPosition("desk right"), "-", "open");
 
                     // Move To Box Position on the right side of the desk
-                    //pandaRobot->moveRobot(getPosition("near desk right"), "close", "-");
+                    //pandaRobot->moveRobot(positions.getPosition("near desk right"), "close", "-");
 
                 }
             } catch (const std::exception& e) {
