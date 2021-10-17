@@ -19,13 +19,27 @@
 #include <actionlib/client/terminal_state.h>
 
 #include <string>
+#include <exception>
 
 namespace rvt = rviz_visual_tools;
 
 // Singleton Class for Robot Control
 class PandaRobot{
+public:
+    struct MovementException : public std::exception {
+        const char * what () const throw () {
+            return "Movement cannot be executed";
+        }
+    };
+
 private:    
    
+    struct GoalToleranceExceededException : public std::exception {
+        const char * what () const throw () {
+            return "Goal tolerance exceeded";
+        }
+    };
+
     // Singleton Insance
     static PandaRobot *instance;
 
@@ -95,7 +109,7 @@ private:
         // Texts
         ROS_INFO_NAMED("tutorial", "Reference frame: %s", move_group.getPlanningFrame().c_str());
         ROS_INFO_NAMED("tutorial", "End effector link: %s", move_group.getEndEffectorLink().c_str());
-        visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to start the demo");
+        //visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to start the demo");
 
         //wait for the action server to start
         ROS_INFO("Waiting for action server to start.");
@@ -104,7 +118,8 @@ private:
         actionClientMove.waitForServer();
         actionClientHoming.waitForServer();
         // era.waitForServer();};
-    }        
+        ROS_INFO("PandaRobot CTOR init ready, now waiting for orders.");
+}        
 
     // Private Destructor
     ~PandaRobot(){};
@@ -140,7 +155,7 @@ public:
             graspGoal.force = 60;
             graspGoal.epsilon.inner = 0.05;
             graspGoal.epsilon.outer = 0.05;
-        actionClientGrasp.sendGoal(graspGoal);
+            actionClientGrasp.sendGoal(graspGoal);
         } else if (gripperCommand == "home"){
             actionClientHoming.sendGoal(homingGoal);
             sleep(3);
@@ -154,9 +169,10 @@ public:
         std::vector<double> joint_group_positions;
 
         // Move Gripper before Robot Movement
+        ROS_DEBUG("moving gripper (%s)", firstGripperCommand);
         sleep(0.5);
         moveGripper(firstGripperCommand);
-        sleep(1);
+        sleep(0.5);
        
         current_state = move_group.getCurrentState();
         current_state->copyJointGroupPositions(joint_model_group, joint_group_positions);
@@ -180,8 +196,28 @@ public:
 
         move_group->setJointValueTarget(joints_goal);
 
-        bool success = (move_group->plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-        ROS_INFO_NAMED("tutorial", "Visualizing plan 1 (joint space goal) %s", success ? "" : "FAILED");
+/*        try {
+            moveit::planning_interface::MoveItErrorCode planningResult = 2;
+            float tolerance = 0.0001;
+            while (planningResult != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+                move_group->setGoalTolerance(tolerance);
+                planningResult = (move_group->plan(my_plan));
+                ROS_INFO("Visualizing plan 1 (joint space goal). Planning %s", 
+                (planningResult == moveit::planning_interface::MoveItErrorCode::SUCCESS) ? "successful" : "failed");
+
+                if (planningResult == moveit::planning_interface::MoveItErrorCode::PLANNING_FAILED) {
+                    ROS_WARN("Planning failed, increasing goal tolerance to %f", tolerance += 0.001);
+                    if (tolerance > 0.01) {
+                        throw GoalToleranceExceededException();
+                    }
+                }
+            }
+        } catch (const GoalToleranceExceededException& e) {
+            ROS_ERROR("Planning failed with exception: %s", e.what());
+            throw MovementException();
+        }*/
+        
+        move_group->plan(my_plan);
 
         move_group->setMaxVelocityScalingFactor(speed);
 
@@ -189,7 +225,7 @@ public:
         visual_tools.publishText(text_pose, "Joint Space Goal", rvt::WHITE, rvt::XLARGE);
         visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
         visual_tools.trigger();
-        visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue the demo");
+        //visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue the demo");
 
         move_group->move();
 

@@ -25,6 +25,7 @@
 #include <moveit_visual_tools/moveit_visual_tools.h>
 #include <control_msgs/GripperCommandAction.h>
 #include <franka_gripper/franka_gripper.h>
+#include <franka_control/ErrorRecoveryActionGoal.h>
 
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -33,6 +34,8 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 
+#include <tuple>
+#include <vector>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -55,7 +58,11 @@ int global_order_pos{0};
 int global_temperature;
 
 
-
+struct MoveCommand {
+    std::string position;
+    std::string gripperBefore;
+    std::string gripperAfter;
+};
 
 ////////////////////////////////////////////////  ROBOT ROS METHODS  ///////////////////////////////////////////////////
 void chatterCallback(const std_msgs::String::ConstPtr& msg){
@@ -67,6 +74,9 @@ void chatterCallback(const std_msgs::String::ConstPtr& msg){
     // split the string into to arguments
     ss >> global_order_movement;    // PO
     ss >> global_order_pos;         // 3
+
+    ROS_INFO("Movement: %s", global_order_movement.c_str());
+    ROS_INFO("Place: %d", global_order_pos);
 
 
 } 
@@ -82,6 +92,7 @@ int main(int argc, char** argv)
     ros::NodeHandle node_handle;
     ros::Subscriber sub = node_handle.subscribe("ros_opcua_order", 1000, chatterCallback);
     ros::Publisher pub = node_handle.advertise<std_msgs::String>("ros_opcua_response", 1000);
+    ros::Publisher errorRecoverPub = node_handle.advertise<franka_control::ErrorRecoveryActionGoal>("/franka_control/error_recovery/goal", 1000, true);
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
@@ -97,7 +108,11 @@ int main(int argc, char** argv)
         while(ros::ok()) {
 
             ////////////////// RECEIVING ORDERS //////////////////
-            if (global_order_movement.compare("PS") == 0 || global_order_movement.compare("SO") == 0| global_order_movement.compare("PO") == 0) {
+            //if (global_order_movement.compare("PS") == 0 || global_order_movement.compare("SO") == 0| global_order_movement.compare("PO") == 0) {
+
+            if (global_order_movement.compare("PS") == 0 || global_order_movement.compare("SO") == 0 || global_order_movement.compare("SC") == 0 | global_order_movement.compare("PO") == 0) {
+
+              //  ROS_INFO("Place: [%s]", global_order_pos);
 
                 std::cout << "Place: " << global_order_pos << std::endl;
 
@@ -112,6 +127,13 @@ int main(int argc, char** argv)
                 continue;
             }
 
+            //std::cout << "Deliver order: " << global_order_movement << global_order_pos << std::endl;
+            ROS_INFO("Deliver order: [%s %d]", global_order_movement.c_str(), global_order_pos);
+
+            // publish error recovery (just in case)
+            franka_control::ErrorRecoveryActionGoal empty{};
+            errorRecoverPub.publish(empty);
+
             // publish state
             global_response = "Moving";
             // This is the Response from the robot if it is moving or not, necessary for the opcua master to wait until "stopped"
@@ -119,7 +141,7 @@ int main(int argc, char** argv)
             global_ros_response.data = global_response;
             pub.publish(global_ros_response);
 
-            // try{
+            try{
                 ////////////////// MOVEMENT OF ROBOT //////////////////
 
 
@@ -184,6 +206,40 @@ int main(int argc, char** argv)
                     // Move To Initial Position
                     pandaRobot->moveRobot(getPosition("initial position"));
 
+                } else if (global_order_movement.compare("SC") == 0) { // move from storage to cart
+
+                    pandaRobot->moveRobot(getPosition("near storage place " + std::to_string(global_order_pos)));
+/*                    std::vector<MoveCommand> moveCommands;
+                    std::string pos = std::to_string(global_order_pos);
+                    moveCommands.push_back({"cups init",      "-", "-"});
+                    moveCommands.push_back({"cups storage",          "-", "-"});
+                    moveCommands.push_back({"near cup " + pos,       "-", "-"});
+                    moveCommands.push_back({"cup "      + pos,       "open", "close"});
+                    moveCommands.push_back({"near cup " + pos,       "-", "-"});
+                    //moveCommands.push_back({"cups storage",          "-", "-"});
+                    moveCommands.push_back({"near cart position",    "-", "-"});
+                    moveCommands.push_back({"cart position",         "-", "open"});
+                    moveCommands.push_back({"near cart position",    "-", "-"});
+                    moveCommands.push_back({"cups storage",          "close", "open"});                   
+
+                    auto prevMove = moveCommands.begin();
+                    for (auto moveCommand = moveCommands.begin(); moveCommand != moveCommands.end(); ++moveCommand) {
+                        ROS_INFO("Move Command [%s],[%s],[%s]", 
+                            moveCommand->position.c_str(),
+                            moveCommand->gripperBefore.c_str(),
+                            moveCommand->gripperAfter.c_str());
+                        // in case we ran into an error before, recover it
+                        errorRecoverPub.publish(empty);
+                        try {
+                            pandaRobot->moveRobot(getPosition(moveCommand->position), moveCommand->gripperBefore, moveCommand->gripperAfter);
+                            prevMove = moveCommand;
+                        } catch (const PandaRobot::MovementException& me) {
+                            ROS_ERROR("Exception in move from '%s' to '%s'", prevMove->position.c_str(), moveCommand->position.c_str());
+                            throw std::exception();
+                        }
+                    }
+*/
+
                 } else if (global_order_movement.compare("DD") == 0) {
 
                     // Move To Box Position on the left side of the desk
@@ -205,9 +261,13 @@ int main(int argc, char** argv)
                     //pandaRobot->moveRobot(getPosition("near desk right"), "close", "-");
 
                 }
-            // }catch(const std::exception& e){
+            } catch (const std::exception& e) {
+                ROS_ERROR("Exception while executing order [%s %d]", global_order_movement.c_str(), global_order_pos);
+                global_order_movement = "XX";
+                global_order_pos = 0;
+
             //     era.sendGoal(goalError);
-            // }
+            }
 
             // publish state
             global_response = "Stopped";

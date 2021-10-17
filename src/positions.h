@@ -359,5 +359,67 @@ std::vector<double> getPosition(std::string position){
                 +0.130150		// Joint 7
                 };
 
+        // Positions for fat cup gripper just in front of the storage place
+        // TOP position above cup storage
+        positions["cups storage"] =
+{
+-1.561792,		// Joint 1
+-1.170083,		// Joint 2
+-0.037845,		// Joint 3
+-2.462313,		// Joint 4
+-0.006930,		// Joint 5
++3.564846,		// Joint 6
+-2.394994		// Joint 7
+};
+
+        // near cup 1
+        positions["near cup 1"] =
+{
+-1.631899,		// Joint 1
+-1.130588,		// Joint 2
+-0.090083,		// Joint 3
+-2.732624,		// Joint 4
+-0.245313,		// Joint 5
++3.051188,		// Joint 6
+-2.209830		// Joint 7
+};
+
+        // cup 1
+        positions["cup 1"] =
+{
+-1.582722,		// Joint 1
+-0.531107,		// Joint 2
+-0.087992,		// Joint 3
+-2.489963,		// Joint 4
+-0.004543,		// Joint 5
++3.465666,		// Joint 6
+-2.392425		// Joint 7
+};
+
+        // Position above cart
+        positions["near cart position"] =
+{
+-0.832216,		// Joint 1
++1.138479,		// Joint 2
++1.494533,		// Joint 3
+-2.266137,		// Joint 4
+-2.788387,		// Joint 5
++1.749580,		// Joint 6
+-0.460249		// Joint 7
+};
+
+   
+        // Position at cart
+        positions["cart position"] =
+{
++0.236935,		// Joint 1
++1.417247,		// Joint 2
++0.173832,		// Joint 3
+-0.805468,		// Joint 4
+-2.632906,		// Joint 5
++2.431974,		// Joint 6
++0.251605		// Joint 7
+};
+
         return positions[position];
 }
